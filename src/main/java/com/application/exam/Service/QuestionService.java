@@ -1,14 +1,19 @@
 package com.application.exam.Service;
 
+import com.application.exam.Model.Exam;
 import com.application.exam.Model.Question;
 import com.application.exam.Repository.QuestionRepository;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
 
 @Service
 public class QuestionService {
+    @Autowired
     private QuestionRepository questionRepo;
+    @Autowired
+    private ExamService examService;
 
     public Question saveQuestion(Question newQ){
         return this.questionRepo.save(newQ);
@@ -40,6 +45,16 @@ public class QuestionService {
 
     public void deleteQuestion(int id){
         this.questionRepo.deleteById(id);
+    }
+
+    public Question assignExam(int id_q, int id_e){
+        Question q = questionRepo.findById(id_q)
+                .orElseThrow(() -> new RuntimeException("Question not found with id: " + id_q));
+        Exam e = examService.getById(id_e);
+        e.addQuestions(List.of(q));
+        examService.saveExam(e);
+        q.addExams(List.of(e));
+        return q;
     }
 
 }

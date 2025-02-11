@@ -2,6 +2,8 @@ package com.application.exam.Model;
 
 import jakarta.persistence.*;
 
+import java.util.List;
+
 @Entity
 public class Note {
     @Id
@@ -15,6 +17,8 @@ public class Note {
     @ManyToOne
     @JoinColumn(name = "exam_id")
     private Exam exam;
+
+    private List<Integer> repEtd;
 
     private Float note;
 
@@ -57,6 +61,17 @@ public class Note {
         this.note = note;
     }
 
+    public int getId() {
+        return id;
+    }
+
+    public List<Integer> getRepEtd() {
+        return repEtd;
+    }
+
+    public void setRepEtd(List<Integer> repEtd) {
+        this.repEtd = repEtd;
+    }
 
     @Override
     public String toString() {

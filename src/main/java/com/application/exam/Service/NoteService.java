@@ -45,5 +45,18 @@ public class NoteService {
     public void deleteNote(int id) {
         this.noteRepository.deleteById(id);
     }
+
+    public Note findByEtudiantAndModule(int etudiantId, int moduleElementId) {
+        return this.noteRepository.findByEtudiantAndModule(etudiantId, moduleElementId);
+    }
+
+    public List<Note> findByEtudiant(int etudiantId) {
+        return this.noteRepository.findByEtudiant(etudiantId);
+    }
+
+    public List<Note> findByModule(int moduleElementId) {
+        return this.noteRepository.findByModule(moduleElementId);
+    }
+
 }
 

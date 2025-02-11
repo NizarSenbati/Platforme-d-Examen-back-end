@@ -20,8 +20,8 @@ public class EtudiantService {
     }
 
     // Get a student by ID
-    public Optional<Etudiant> getById(int id) {
-        return this.etudiantRepository.findById(id);
+    public Etudiant getById(int id) {
+        return this.etudiantRepository.findById(id).orElseThrow(() -> new RuntimeException("Etudiant not found with id: " + id));
     }
 
     // Add a new student
@@ -33,8 +33,9 @@ public class EtudiantService {
     public Etudiant updateEtudiant(int id, Etudiant updatedEtudiant) {
         return this.etudiantRepository.findById(id)
                 .map(existingEtudiant -> {
-                    existingEtudiant.setCode(updatedEtudiant.getCode());
-                    existingEtudiant.setFullName(updatedEtudiant.getFullName());
+                    existingEtudiant.setAppoge(updatedEtudiant.getAppoge());
+                    existingEtudiant.setLastName(updatedEtudiant.getLastName());
+                    existingEtudiant.setFirstName(updatedEtudiant.getFirstName());
                     existingEtudiant.setModules(updatedEtudiant.getModules());
                     return etudiantRepository.save(existingEtudiant);
                 })

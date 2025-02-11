@@ -1,11 +1,16 @@
 package com.application.exam.Model;
 
-import java.util.ArrayList;
 import java.util.List;
 
+import com.fasterxml.jackson.annotation.JsonBackReference;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
+import lombok.Getter;
+import lombok.Setter;
 
 @Entity
+@Getter
+@Setter
 public class Question {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -24,85 +29,36 @@ public class Question {
 
     private int indice;
 
-    @ManyToMany
-    @JoinTable(
-            name = "question_exam",
-            joinColumns = @JoinColumn(name = "question_id"),
-            inverseJoinColumns = @JoinColumn(name = "exam_id")
-    )
+    @ManyToMany(mappedBy = "questions")
+    @JsonIgnore
+    @JsonBackReference
     private List<Exam> exams;
 
+    public Question(){}
 
-    public Question(int id, String question, int indice, String sujet, String difficulte){
-        this.id = id;
+    public Question(String question, String difficulte, String sujet, String rep1, String rep2, String rep3, String rep4, int indice, List<Exam> exams) {
         this.question = question;
-        this.indice = indice;
         this.difficulte = difficulte;
         this.sujet = sujet;
-    }
-
-
-    public int getId() {
-        return id;
-    }
-    public void setId(int id) {
-        this.id = id;
-    }
-
-    public String getQuestion() {
-        return question;
-    }
-    public void setQuestion(String question) {
-        this.question = question;
-    }
-
-    public String getSujet() {
-        return sujet;
-    }
-    public void setSujet(String sujet) {
-        this.sujet = sujet;
-    }
-
-    public String getDifficulte() {
-        return difficulte;
-    }
-    public void setDifficulte(String difficulte) {
-        this.difficulte = difficulte;
-    }
-
-    public int getIndice() {
-        return indice;
-    }
-    public void setIndice(int indice) {
-        this.indice = indice;
-    }
-
-    public String getRep1() {
-        return rep1;
-    }
-    public void setRep1(String rep1) {
         this.rep1 = rep1;
-    }
-
-    public void setRep2(String rep2) {
         this.rep2 = rep2;
-    }
-    public String getRep2() {
-        return rep2;
-    }
-
-    public String getRep4() {
-        return rep4;
-    }
-    public void setRep4(String rep4) {
-        this.rep4 = rep4;
-    }
-
-    public String getRep3() {
-        return rep3;
-    }
-    public void setRep3(String rep3) {
         this.rep3 = rep3;
+        this.rep4 = rep4;
+        this.indice = indice;
+        this.exams = exams;
+    }
+
+    public List<Exam> addExams(List<Exam> exams) {
+        for (Exam exam : exams) {
+            if (!this.exams.contains(exam)) {
+                this.exams.add(exam);
+                // Avoid infinite recursion by checking if question is already in exam
+                if (!exam.getQuestions().contains(this)) {
+                    exam.addQuestions(List.of(this));
+                }
+            }
+        }
+        return this.exams;
     }
 
 }

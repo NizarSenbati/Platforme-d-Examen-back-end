@@ -1,55 +1,35 @@
 package com.application.exam.Model;
 
+import com.application.exam.security.Role;
 import jakarta.persistence.*;
+import lombok.*;
 
 import java.util.List;
 
 @Entity
-public class Professeur {
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private int id;
+@Getter
+@Setter
+@NoArgsConstructor
+@AllArgsConstructor
+public class Professeur extends User{
 
     @Column(unique = true)
     private int code;
 
-    private String fullName;
+    private String Departement;
 
-    @OneToMany(mappedBy = "professeur", cascade = CascadeType.ALL)
+    @OneToMany(mappedBy = "professeur")
     private List<ModuleElement> modules;
 
-
-    public Professeur(int id, int code, String fullName) {
-        this.id = id;
-        this.code = code;
-        this.fullName = fullName;
+    @PrePersist
+    public void prePersist() {
+        setRole(Role.PROFESSEUR);
     }
 
-    public int getId() {
-        return id;
-    }
-    public void setId(int id) {
-        this.id = id;
-    }
-
-    public int getCode() {
-        return code;
-    }
-    public void setCode(int code) {
-        this.code = code;
+    public List<ModuleElement> addModules(List<ModuleElement> modules){
+        this.modules.addAll(modules);
+        modules.forEach(e -> e.setProfesseur(this));
+        return this.modules;
     }
 
-    public String getFullName() {
-        return fullName;
-    }
-    public void setFullName(String fullName) {
-        this.fullName = fullName;
-    }
-
-    public List<ModuleElement> getModules() {
-        return modules;
-    }
-    public void setModules(List<ModuleElement> modules) {
-        this.modules = modules;
-    }
 }

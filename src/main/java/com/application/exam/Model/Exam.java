@@ -1,9 +1,15 @@
 package com.application.exam.Model;
 
 import jakarta.persistence.*;
+import lombok.Getter;
+import lombok.Setter;
+
+import java.util.ArrayList;
 import java.util.List;
 
 @Entity
+@Getter
+@Setter
 public class Exam {
 
     @Id
@@ -14,72 +20,54 @@ public class Exam {
 
     private int duree;
 
+
     @OneToMany(mappedBy = "exam", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<Note> notes;
 
-    @ManyToOne
-    @JoinColumn(name = "module_id")
+    @OneToOne(mappedBy = "exam")
     private ModuleElement module;
 
 
+    @ManyToMany
+    @JoinTable(
+            name = "exam_question",
+            joinColumns = @JoinColumn(name = "exam_id"),
+            inverseJoinColumns = @JoinColumn(name = "question_id")
+    )
+    private List<Question> questions;
 
     public Exam() {}
 
-
-    public Exam(String titre, int duree, ModuleElement module) {
+    public Exam(String titre, int duree, ModuleElement module, List<Question> questions) {
         this.titre = titre;
         this.duree = duree;
         this.module = module;
+        this.questions = questions;
     }
 
-
-    public int getId() {
-        return id;
-    }
-
-    public void setId(int id) {
-        this.id = id;
-    }
-
-    public String getTitre() {
-        return titre;
-    }
-
-    public void setTitre(String titre) {
-        this.titre = titre;
-    }
-
-    public int getDuree() {
-        return duree;
-    }
-
-    public void setDuree(int duree) {
-        this.duree = duree;
-    }
-
-    public List<Note> getNotes() {
-        return notes;
-    }
-
-    public void setNotes(List<Note> notes) {
-        this.notes = notes;
-    }
-
-    public ModuleElement getModule() {
-        return module;
-    }
-
-    public void setModule(ModuleElement module) {
-        this.module = module;
+    public List<Question> addQuestions(List<Question> questions) {
+        List<Exam> exams = new ArrayList<>();
+        for (Question question : questions) {
+            if (!this.questions.contains(question)) {
+                this.questions.add(question);
+                // Avoid infinite recursion by checking if exam is already in question
+                if (!question.getExams().contains(this)) {
+                    exams = question.addExams(List.of(this));
+                }
+            }
+        }
+        System.out.println("exams: "+ exams);
+        return this.questions;
     }
 
     @Override
     public String toString() {
         return "Exam{" +
                 "id=" + id +
-                ", titre='" + titre + '\'' +
+                ", titre=" + titre +
                 ", duree=" + duree +
                 ", module=" + module +
+                ",\nQuestions{ " + questions + " \n}" +
                 '}';
     }
 }

@@ -1,19 +1,20 @@
 package com.application.exam.Model;
 
+import com.application.exam.security.Role;
 import jakarta.persistence.*;
+import lombok.*;
 
 import java.util.List;
 
+@Getter
+@Setter
 @Entity
-public class Etudiant {
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private int id;
+@NoArgsConstructor
+@AllArgsConstructor
+public class Etudiant extends User{
 
     @Column(unique = true)
-    private int code;
-
-    private String fullName;
+    private int appoge;
 
     @ManyToMany
     @JoinTable(
@@ -26,58 +27,37 @@ public class Etudiant {
     @OneToMany(mappedBy = "etudiant", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<Note> notes;
 
-
-    public Etudiant(int id, int code, String fullName) {
-        this.id = id;
-        this.code = code;
-        this.fullName = fullName;
-    }
-
-    public int getId() {
-        return id;
-    }
-    public void setId(int id) {
-        this.id = id;
-    }
-
-    public int getCode() {
-        return code;
-    }
-    public void setCode(int code) {
-        this.code = code;
-    }
-
-    public String getFullName() {
-        return fullName;
-    }
-    public void setFullName(String fullName) {
-        this.fullName = fullName;
-    }
-
-    public List<ModuleElement> getModules() {
-        return modules;
-    }
-
-    public void setModules(List<ModuleElement> modules) {
+    public Etudiant(int appoge, String email, String firstName, String lastName, List<ModuleElement> modules, List<Note> notes) {
+        super(email, firstName, lastName);
+        this.appoge = appoge;
         this.modules = modules;
-    }
-
-    public List<Note> getNotes() {
-        return notes;
-    }
-
-    public void setNotes(List<Note> notes) {
         this.notes = notes;
+
+    }
+
+    @PrePersist
+    public void prePersist() {
+        setRole(Role.ETUDIANT);
+    }
+
+
+
+    public List<ModuleElement> addModules(List<ModuleElement> modules) {
+        modules.forEach(module -> {
+            if (!module.getEtudiants().contains(this)) {
+                module.addEtudiants(List.of(this));
+            }
+        });
+        this.modules.addAll(modules);
+        return this.modules;
     }
 
     @Override
     public String toString() {
         return "Etudiant{" +
-                "id=" + id +
-                ", code=" + code +
-                ", fullName='" + fullName + '\'' +
+                "id=" + super.getId() +
+                ", code=" + appoge +
+                ", fullName='" + super.getFirstName() + ' ' + super.getLastName() + '\'' +
                 '}';
     }
-
-
 }
